@@ -1,4 +1,8 @@
-model,lang,sysprompt,thinking,n_harmful,n_benign,median_delta,ci_lo,ci_hi,frac_pos,wilcoxon_p,wasserstein,safety_drift,verified,bh_significant
-Qwen3-0.6B,Bengali,False,empty_think,270,67,2.3321,2.2126,2.466,1.0,0.0,2.2861,1.0019,False,True
-Qwen3-0.6B,Hindi,False,empty_think,330,125,3.0144,2.9506,3.069,1.0,0.0,2.957,0.7802,False,True
-Qwen3-0.6B,Hindi,True,empty_think,330,125,2.8057,2.74,2.8577,1.0,0.0,2.7576,0.7686,False,True
+model,lang,sysprompt,thinking,n_harmful,n_benign,median_delta,ci_lo,ci_hi,frac_pos,wilcoxon_p,wasserstein,safety_drift,sd_lo,sd_hi,sd_p,sd_sig,verified,bh_significant
+Qwen3-0.6B,Bengali,False,empty_think,270,67,2.3321,2.2126,2.466,1.0,0.0,2.2861,1.0019,0.7503,1.1415,0.0,True,False,True
+Qwen3-0.6B,Hindi,False,empty_think,330,125,3.0144,2.9506,3.069,1.0,0.0,2.957,0.7802,0.6634,0.9116,0.0,True,False,True
+Qwen3-0.6B,Hindi,True,empty_think,330,125,2.8057,2.74,2.8577,1.0,0.0,2.7576,0.7686,0.7042,0.8255,0.0,True,False,True
+Qwen3-1.7B,Bengali,False,empty_think,330,125,3.832,3.7358,3.9076,1.0,0.0,3.8621,0.618,0.4614,0.86,0.0,True,True,True
+Qwen3-4B,Bengali,False,empty_think,330,125,2.0295,1.9212,2.2247,1.0,0.0,2.1085,-0.3209,-0.5253,0.0023,0.0614,False,False,True
+Qwen3-4B,Telugu,False,empty_think,330,125,3.362,3.1666,3.5098,1.0,0.0,3.4374,-0.1772,-0.3947,-0.0004,0.0496,True,False,True
+Qwen3-4B,Urdu,False,empty_think,330,125,1.7524,1.5837,1.877,1.0,0.0,1.8634,-0.2207,-0.4304,0.0066,0.055,False,False,True

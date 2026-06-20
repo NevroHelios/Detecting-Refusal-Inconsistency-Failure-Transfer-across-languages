@@ -1,4 +1,4 @@
-model_id: Qwen/Qwen3-0.6B
+model_id: Qwen/Qwen3-4B
 model_revision: main          # pin to a commit hash before publication runs
 quant: nf4                     # nf4 | int8 | none
 target_lang: Bengali

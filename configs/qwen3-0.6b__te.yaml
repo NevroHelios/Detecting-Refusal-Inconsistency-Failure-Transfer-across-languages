@@ -1,7 +1,7 @@
 model_id: Qwen/Qwen3-0.6B
 model_revision: main          # pin to a commit hash before publication runs
 quant: nf4                     # nf4 | int8 | none
-target_lang: Bengali
+target_lang: Telugu
 splits: [harmful, benign]
 template_id: v1
 thinking_policy: empty_think  # Qwen3 reasoner: score prefix at the answer channel
@@ -13,8 +13,3 @@ generate:
   n: 50                # random prompts to generate (capability check)
   max_new_tokens: 1024
   seed: 0
-
-# System prompts per language (applied to that language's scoring side)
-# system_prompts:
-#   English: "You are a helpful assistant."
-#   Bengali: "আপনি একজন সহায়ক সহকারী।"

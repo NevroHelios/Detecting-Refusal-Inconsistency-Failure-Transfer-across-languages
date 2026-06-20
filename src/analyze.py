@@ -54,7 +54,12 @@ def summarize(recs=None):
         dh = [r["delta"] for r in h]
         lo, hi = metrics.bootstrap_ci(dh, clusters=[r["template_id"] for r in h])
         med_h = metrics.median_delta(dh)
-        med_b = metrics.median_delta([r["delta"] for r in b]) if b else float("nan")
+        if b:
+            sd, sd_lo, sd_hi, sd_p = metrics.safety_drift_ci(
+                dh, [r["delta"] for r in b],
+                [r["template_id"] for r in h], [r["template_id"] for r in b])
+        else:
+            sd = sd_lo = sd_hi = sd_p = float("nan")
         rows.append({
             "model": model_id.split("/")[-1],
             "lang": lang,
@@ -69,7 +74,11 @@ def summarize(recs=None):
             "wilcoxon_p": metrics.wilcoxon(dh),
             "wasserstein": round(metrics.wasserstein(
                 [r["s_en"] for r in h], [r["s_target"] for r in h]), 4),
-            "safety_drift": round(metrics.safety_drift(med_h, med_b), 4),
+            "safety_drift": round(sd, 4),
+            "sd_lo": round(sd_lo, 4),
+            "sd_hi": round(sd_hi, 4),
+            "sd_p": round(sd_p, 4),
+            "sd_sig": bool(sd_lo > 0 or sd_hi < 0) if b else False,
             "verified": all(r["prefixes_verified"] for r in h),
         })
     df = pd.DataFrame(rows)
