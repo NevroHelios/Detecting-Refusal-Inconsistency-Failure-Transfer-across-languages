@@ -12,27 +12,28 @@ The script produces the same output format as `src/run.py`:
 """
 
 # ============================================================================
-# INSTALL CELL  (run this first in Colab)
+# CELL 1 — Install dependencies  (run this first in Colab)
 # ============================================================================
 # !pip install -q torch transformers accelerate bitsandbytes pyyaml
 
 # ============================================================================
-# CONFIG  (edit this before running)
+# CELL 3 — CONFIG  (edit this before running)
 # ============================================================================
 CONFIG = {
-    "model_id": "mistralai/Ministral-8B-Instruct-2410",
+    "model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
     "model_revision": "main",
-    "quant": "nf4",                  # nf4 | int8 | none  (GPU modes)
+    "quant": "nf4",                  # nf4 = 4-bit GPU (recommended for Colab T4)
     "target_lang": "Hindi",
     "splits": ["harmful", "benign"],
     "template_id": "v1",
-    # "thinking_policy": "empty_think",   # uncomment for Qwen3-style reasoners
+    # thinking_policy is NOT needed — Llama 3.2 is not a reasoning model
+    # "thinking_policy": "empty_think",   # only for Qwen3-style reasoners
     # "tag": "colab",                     # optional tag for output filename
     # "limit": 20,                        # cap rows for pilot runs
-    # "system_prompts": {
-    #     "English": "You are a helpful assistant.",
-    #     "Hindi": "आप एक आज्ञाकारी सहायक हैं।",
-    # },
+    "system_prompts": {
+        "English": "You are a helpful assistant.",
+        "Hindi": "आप एक सहायक सहायक हैं।",  # system prompt applied on Hindi scoring side
+    },
     "generate": {
         "max_new_tokens": 128,
     },
@@ -485,9 +486,11 @@ def run(cfg):
 # ENTRYPOINT
 # ============================================================================
 if __name__ == "__main__":
-    # Accept optional YAML config path as CLI arg, otherwise use CONFIG dict
-    if len(sys.argv) > 1:
-        cfg_path = sys.argv[1]
+    # Accept optional YAML config path as CLI arg, otherwise use CONFIG dict.
+    # Filter out Jupyter/Colab kernel flags (e.g. '-f kernel-xxx.json') from sys.argv.
+    positional_args = [a for a in sys.argv[1:] if not a.startswith("-") and a.endswith((".yaml", ".yml"))]
+    if positional_args:
+        cfg_path = positional_args[0]
         cfg = yaml.safe_load(Path(cfg_path).read_text())
     else:
         cfg = CONFIG
