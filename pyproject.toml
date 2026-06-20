@@ -1,0 +1,28 @@
+[project]
+name = "drift"
+version = "0.1.0"
+description = "Cross-lingual safety-propensity drift on IndicSafe via logprob comply/refuse proxy"
+requires-python = ">=3.11,<3.13"   # torch/bitsandbytes wheels; avoid 3.14
+dependencies = [
+    "numpy",
+    "scipy",
+    "pandas",
+    "pyyaml",
+    "torch>=2.12.1",
+]
+
+[project.optional-dependencies]
+gpu = [
+    "torch",
+    "transformers",
+    "accelerate",
+    "bitsandbytes",
+    "datasets",
+]
+
+[dependency-groups]
+dev = ["pytest"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]

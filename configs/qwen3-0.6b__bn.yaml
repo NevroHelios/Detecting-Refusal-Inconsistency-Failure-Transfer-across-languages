@@ -1,0 +1,14 @@
+model_id: Qwen/Qwen3-0.6B
+model_revision: main          # pin to a commit hash before publication runs
+quant: nf4                    # nf4 | int8 | none
+target_lang: Bengali
+splits: [harmful, benign]
+template_id: v1
+thinking_policy: empty_think  # Qwen3 reasoner: score prefix at the answer channel
+# tag: baseline              # distinguishes variant runs in the output filename
+# limit: 20                  # cap rows (pilots)
+
+# System prompts per language (applied to that language's scoring side)
+# system_prompts:
+#   English: "You are a helpful assistant."
+#   Bengali: "আপনি একজন সহায়ক সহকারী।"
