@@ -64,6 +64,19 @@ def prefix_logprob(tokenizer, model, prompt, prefix, system_prompt=None, thinkin
     return float(logp[torch.arange(len(tgt)), tgt].mean()), int(n)
 
 
+@torch.no_grad()
+def generate_text(tokenizer, model, prompt, system_prompt=None, thinking_policy="dense",
+                  max_new_tokens=128):
+    """Greedy-decode the model's actual answer (diagnostic, not the metric)."""
+    msgs = ([{"role": "system", "content": system_prompt}] if system_prompt else []) \
+        + [{"role": "user", "content": prompt}]
+    pids = tokenizer.apply_chat_template(msgs, add_generation_prompt=True,
+                                         return_dict=False, **POLICY_KW[thinking_policy])
+    ids = torch.tensor([pids], device=model.device)
+    out = model.generate(ids, max_new_tokens=max_new_tokens, do_sample=False)
+    return tokenizer.decode(out[0, len(pids):], skip_special_tokens=True)
+
+
 def score_prompt(tokenizer, model, prompt, comply_prefixes, refuse_prefixes,
                  system_prompt=None, thinking_policy="dense"):
     """{s, lp_comply, lp_refuse, n_prompt_tokens}, averaged over prefixes."""

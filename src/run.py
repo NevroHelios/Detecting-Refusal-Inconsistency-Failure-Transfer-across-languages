@@ -55,6 +55,13 @@ def run(cfg_path):
         base += f"__{cfg['tag']}"
     out = RESULTS / f"{base}.jsonl"
     RESULTS.mkdir(exist_ok=True)
+    gen_cfg = cfg.get("generate")
+    gen_on = bool(gen_cfg)
+    gen_max = gen_cfg.get("max_new_tokens", 128) if isinstance(gen_cfg, dict) else 128
+    gen_out = RESULTS / f"{base}.gen.jsonl"
+    gen_f = open(gen_out, "w", encoding="utf-8") if gen_on else None
+    n_gen = 0
+
     n = 0
     limit = cfg.get("limit")
     with open(out, "w", encoding="utf-8") as f:
@@ -65,6 +72,16 @@ def run(cfg_path):
                                     sys_en, policy)
             st = score.score_prompt(tok, model, row["target_text"], pref["comply"],
                                     pref["refuse"], sys_tgt, policy)
+            if gen_on:
+                gen_f.write(json.dumps({
+                    "prompt_id": row["prompt_id"], "split": row["split"],
+                    "category": row["category"], "thinking_policy": policy,
+                    "en_text": row["en_text"], "target_text": row["target_text"],
+                    "gen_en": score.generate_text(tok, model, row["en_text"], sys_en, policy, gen_max),
+                    "gen_target": score.generate_text(tok, model, row["target_text"], sys_tgt, policy, gen_max),
+                }, ensure_ascii=False) + "\n")
+                gen_f.flush()
+                n_gen += 1
             rec = validate({
                 "schema_version": SCHEMA_VERSION,
                 "model_id": cfg["model_id"],
@@ -96,6 +113,9 @@ def run(cfg_path):
     manifest.write_text(json.dumps({"config": cfg, "git_hash": git_hash(),
                                     "schema_version": SCHEMA_VERSION, "n_rows": n}, indent=2))
     print(f"wrote {n} rows -> {out}")
+    if gen_f:
+        gen_f.close()
+        print(f"wrote {n_gen} generations -> {gen_out}")
 
 
 if __name__ == "__main__":

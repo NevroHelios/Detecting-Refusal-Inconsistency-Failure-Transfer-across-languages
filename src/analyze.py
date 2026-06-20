@@ -22,6 +22,8 @@ RESULTS = Path(__file__).resolve().parent.parent / "results"
 def load_all():
     recs = []
     for fp in glob.glob(str(RESULTS / "*.jsonl")):
+        if fp.endswith(".gen.jsonl"):   # generation sidecars aren't schema rows
+            continue
         with open(fp, encoding="utf-8") as f:
             for line in f:
                 line = line.strip()

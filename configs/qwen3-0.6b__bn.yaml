@@ -8,6 +8,9 @@ thinking_policy: empty_think  # Qwen3 reasoner: score prefix at the answer chann
 # tag: baseline              # distinguishes variant runs in the output filename
 # limit: 20                  # cap rows (pilots)
 
+generate:
+  max_new_tokens: 128
+
 # System prompts per language (applied to that language's scoring side)
 # system_prompts:
 #   English: "You are a helpful assistant."
