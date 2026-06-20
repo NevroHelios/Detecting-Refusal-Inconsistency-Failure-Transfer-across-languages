@@ -9,6 +9,9 @@ dependencies = [
     "pandas",
     "pyyaml",
     "torch>=2.12.1",
+    "transformers",
+    "accelerate",
+    "optimum-quanto>=0.2.7",
 ]
 
 [project.optional-dependencies]

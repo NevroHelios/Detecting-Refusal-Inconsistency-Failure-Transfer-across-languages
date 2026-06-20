@@ -26,18 +26,29 @@ def looks_like_reasoner(tokenizer):
 
 
 def load_model(model_id, revision, quant="nf4"):
-    from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig
+    from transformers import AutoModelForCausalLM, AutoTokenizer
 
     tok = AutoTokenizer.from_pretrained(model_id, revision=revision)
     kw = dict(revision=revision, device_map="auto")
     if quant == "nf4":
+        from transformers import BitsAndBytesConfig
         kw["quantization_config"] = BitsAndBytesConfig(
             load_in_4bit=True, bnb_4bit_quant_type="nf4",
             bnb_4bit_compute_dtype=torch.bfloat16, bnb_4bit_use_double_quant=True)
     elif quant == "int8":
+        from transformers import BitsAndBytesConfig
         kw["quantization_config"] = BitsAndBytesConfig(load_in_8bit=True)
+    elif quant in ("cpu_int8", "cpu_int4"):
+        from transformers import QuantoConfig
+        weight_type = "int8" if quant == "cpu_int8" else "int4"
+        kw["quantization_config"] = QuantoConfig(weights=weight_type)
+        kw["device_map"] = "cpu"
     elif quant == "none":
-        kw["dtype"] = torch.bfloat16
+        if torch.cuda.is_available():
+            kw["dtype"] = torch.bfloat16
+        else:
+            kw["dtype"] = torch.float32
+            kw["device_map"] = "cpu"
     else:
         raise ValueError(f"unknown quant {quant!r}")
     model = AutoModelForCausalLM.from_pretrained(model_id, **kw).eval()
