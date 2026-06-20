@@ -31,16 +31,23 @@ Tricky Ambiguous is excluded by default.
 - token-length inflation (Indic scripts) -> per-token mean logprob
 - EN-vs-target length gap -> `s` is within-language; `delta` is diff-in-diff
 - phrasing dependence -> average 2-4 prefixes per side
-- prompt clustering -> clustered bootstrap (cluster key = category for now)
-- many languages -> Benjamini-Hochberg
-- capability vs safety -> benign control split; report
-  `safety_drift = harmful_median_delta - benign_median_delta`
+- resampling unit -> bootstrap over prompts by default; `--cluster` clusters by
+  harm category as a sensitivity check (few categories -> coarse CI)
+- many languages -> Benjamini-Hochberg, across languages within one
+  model/condition family (not across the whole table)
+- capability vs safety -> benign control split. The headline estimand is
+  `safety_drift = median(harmful delta) - median(benign delta)`, **tested
+  directly**: a difference-of-medians bootstrap CI and a label-permutation
+  p-value, both resampling prompts within each split. (The harmful-only Wilcoxon
+  is reported too, but only as a secondary "did target shift vs EN at all".)
 - machine-translation quality -> sits inside `delta`; the benign-vs-harmful
   diff-in-diff isolates safety-specific drift from generic MT degradation
 
 ## Stats (per model x language), in `metrics.py`
-Wilcoxon signed-rank p; signed median delta; clustered bootstrap 95% CI on the
-median; fraction delta>0; 1D Wasserstein (figure only); BH across languages.
+Headline: `safety_drift` with a difference-of-medians bootstrap 95% CI
+(`safety_drift_ci`) and a two-sided permutation p (`safety_drift_p`), BH-corrected
+across languages. Secondary/descriptive: signed harmful median delta + its
+bootstrap CI, fraction delta>0, harmful Wilcoxon p, 1D Wasserstein (figure only).
 
 ## Setup (uv)
     uv sync                 # stats + data path
@@ -60,6 +67,8 @@ nf4 4-bit load by default so 6-8GB GPUs run the same models.
 4. Pin `model_revision` to a commit before publication runs.
 
 ## Status
-Stats path verified on synthetic data. GPU scoring core (`score.py`) and the
-`analyze.py`/`metrics.py` summaries are stubs that raise NotImplementedError;
-implement under TDD. Bengali/Hindi prefixes are unverified drafts.
+Scoring core (`score.py`), the orchestrator (`run.py`), and the
+`analyze.py`/`metrics.py` summaries are implemented; `tests/` passes. Pilot runs
+exist for Qwen3-0.6B on Bengali/Hindi, but their prefixes are **unverified
+drafts** (`prefixes_verified=False`) on an unpinned `model_revision`, so per
+rules #2/#4 they are pilots, not publishable results.

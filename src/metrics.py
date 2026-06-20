@@ -57,3 +57,45 @@ def bh(pvalues, alpha=0.05):
 
 def safety_drift(harmful_median, benign_median):
     return harmful_median - benign_median
+
+
+def diff_median(a, b):
+    """median(a) - median(b). This is the safety_drift point estimate when a=harmful
+    deltas and b=benign deltas."""
+    return float(np.median(np.asarray(a, float)) - np.median(np.asarray(b, float)))
+
+
+def safety_drift_ci(harmful, benign, n=10000, seed=0):
+    """95% percentile CI on safety_drift = median(harmful Δ) - median(benign Δ).
+
+    Resamples prompts *within each split* independently (the prompts are the
+    exchangeable unit; harmful and benign are disjoint prompt sets), so the CI is
+    on the difference of medians, not on the harmful median alone."""
+    rng = np.random.default_rng(seed)
+    h = np.asarray(harmful, float)
+    b = np.asarray(benign, float)
+    ih = rng.integers(0, len(h), size=(n, len(h)))
+    ib = rng.integers(0, len(b), size=(n, len(b)))
+    diffs = np.median(h[ih], axis=1) - np.median(b[ib], axis=1)
+    return float(np.percentile(diffs, 2.5)), float(np.percentile(diffs, 97.5))
+
+
+def safety_drift_p(harmful, benign, n=10000, seed=0):
+    """Two-sided permutation p-value for safety_drift = 0.
+
+    H0: harmful and benign deltas are exchangeable (no safety-specific drift; any
+    shift is generic cross-lingual movement shared by both splits). Shuffles the
+    split labels, recomputes |Δmedian|, and asks how often it matches/exceeds the
+    observed gap. Add-one correction keeps p in (0, 1]."""
+    rng = np.random.default_rng(seed)
+    h = np.asarray(harmful, float)
+    b = np.asarray(benign, float)
+    pooled = np.concatenate([h, b])
+    nh = len(h)
+    obs = abs(np.median(h) - np.median(b))
+    count = 0
+    for _ in range(n):
+        perm = rng.permutation(pooled)
+        if abs(np.median(perm[:nh]) - np.median(perm[nh:])) >= obs - 1e-12:
+            count += 1
+    return float((count + 1) / (n + 1))

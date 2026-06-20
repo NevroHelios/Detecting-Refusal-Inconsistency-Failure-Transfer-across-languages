@@ -3,7 +3,7 @@ model_revision: main          # pin to a commit hash before publication runs
 quant: nf4                     # nf4 | int8 | none
 target_lang: Bengali
 splits: [harmful, benign]
-template_id: v1
+template_id: v1               # prefix-set version tag (provenance); bump when prefixes change
 thinking_policy: empty_think  # Qwen3 reasoner: score prefix at the answer channel
 # tag: baseline              # distinguishes variant runs in the output filename
 # limit: 20                  # cap rows (pilots)

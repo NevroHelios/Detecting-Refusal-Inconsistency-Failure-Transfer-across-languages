@@ -6,6 +6,7 @@
 import json
 import subprocess
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 import yaml
@@ -64,10 +65,18 @@ def run(cfg_path):
 
     n = 0
     limit = cfg.get("limit")
+    rows = list(data.load(lang, cfg.get("splits", ("harmful", "benign"))))
+    if limit:
+        # Cap per split, not globally: rows are grouped by category in the CSV,
+        # so a global head() would keep only harmful and drop the benign control.
+        kept, seen = [], defaultdict(int)
+        for row in rows:
+            if seen[row["split"]] < limit:
+                kept.append(row)
+                seen[row["split"]] += 1
+        rows = kept
     with open(out, "w", encoding="utf-8") as f:
-        for i, row in enumerate(data.load(lang, cfg.get("splits", ("harmful", "benign")))):
-            if limit and i >= limit:
-                break
+        for row in rows:
             se = score.score_prompt(tok, model, row["en_text"], en["comply"], en["refuse"],
                                     sys_en, policy)
             st = score.score_prompt(tok, model, row["target_text"], pref["comply"],
@@ -101,7 +110,7 @@ def run(cfg_path):
                 "n_prompt_tokens_en": se["n_prompt_tokens"],
                 "n_prompt_tokens_target": st["n_prompt_tokens"],
                 "prefixes_verified": bool(pref["verified"] and en["verified"]),
-                "template_id": row["category"],
+                "template_id": str(cfg.get("template_id", "v1")),
                 "system_prompt_en": sys_en is not None,
                 "system_prompt_target": sys_tgt is not None,
                 "thinking_policy": policy,

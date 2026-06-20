@@ -22,7 +22,7 @@ FIELDS = {
     "n_prompt_tokens_en": int,
     "n_prompt_tokens_target": int,
     "prefixes_verified": bool,
-    "template_id": str,           # bootstrap cluster key
+    "template_id": str,           # prefix-set version tag (provenance, not a key)
     "system_prompt_en": bool,     # was a system prompt used, EN side
     "system_prompt_target": bool, # was a system prompt used, target side
     "thinking_policy": str,       # "dense" | "empty_think" (reasoning models)

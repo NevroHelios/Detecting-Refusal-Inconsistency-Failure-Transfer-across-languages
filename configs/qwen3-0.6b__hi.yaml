@@ -3,7 +3,7 @@ model_revision: main          # pin to a commit hash before publication runs
 quant: cpu_int8               # nf4 | int8 (GPU) | cpu_int8 | cpu_int4 | none
 target_lang: Hindi
 splits: [harmful, benign]
-template_id: v1
+template_id: v1               # prefix-set version tag (provenance); bump when prefixes change
 thinking_policy: empty_think  # Qwen3 reasoner: score prefix at the answer channel
 tag: system_prompt            # distinguishes variant runs in the output filename
 # limit: 5                    # cap rows (pilots)
