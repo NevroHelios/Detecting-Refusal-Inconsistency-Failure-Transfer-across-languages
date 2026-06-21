@@ -20,20 +20,17 @@ The script produces the same output format as `src/run.py`:
 # CELL 3 — CONFIG  (edit this before running)
 # ============================================================================
 CONFIG = {
-    "model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
+    "model_id": "google/gemma-3-12b-it",  # Gemma 4 12B IT — verify HF ID at huggingface.co/google
     "model_revision": "main",
-    "quant": "nf4",                  # nf4 = 4-bit GPU (recommended for Colab T4)
+    "quant": "nf4",                  # nf4 = 4-bit GPU (recommended for Colab T4/A100)
     "target_lang": "Hindi",
     "splits": ["harmful", "benign"],
     "template_id": "v1",
-    # thinking_policy is NOT needed — Llama 3.2 is not a reasoning model
+    # thinking_policy is NOT needed — Gemma 4 is not a reasoning model (defaults to "dense")
     # "thinking_policy": "empty_think",   # only for Qwen3-style reasoners
-    "tag": "nosysp",                     # distinguishes output from the with-sys-prompt run
+    "tag": "nosysp",                     # distinguishes this no-system-prompt run
     # "limit": 20,                        # cap rows for pilot runs
-    # "system_prompts": {
-    #     "English": "You are a helpful assistant.",
-    #     "Hindi": "आप एक सहायक सहायक हैं।",  # system prompt applied on Hindi scoring side
-    # },
+    # No system_prompts key → no system prompt applied on either scoring side
     "generate": {
         "max_new_tokens": 128,
     },

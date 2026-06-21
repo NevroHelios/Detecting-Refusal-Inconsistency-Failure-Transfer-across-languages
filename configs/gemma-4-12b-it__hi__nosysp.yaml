@@ -1,0 +1,13 @@
+model_id: google/gemma-3-12b-it   # HF ID — verify at huggingface.co/google; may be gemma-4-12b-it
+model_revision: main               # pin to a commit hash before publication runs
+quant: nf4                         # nf4 = 4-bit GPU (recommended for Colab T4/A100)
+target_lang: Hindi
+splits: [harmful, benign]
+template_id: v1
+tag: nosysp                        # distinguishes this no-system-prompt run in the output filename
+# thinking_policy: dense           # Gemma 4 is not a reasoning model; dense is the default
+# limit: 20                        # cap rows (pilots)
+
+# No system_prompts key → no system prompt applied on either scoring side
+generate:
+  max_new_tokens: 128
