@@ -1,0 +1,15 @@
+model_id: meta-llama/Llama-3.2-8B-Instruct
+model_revision: main          # pin to a commit hash before publication runs
+quant: nf4                    # nf4 | int8 (GPU) | cpu_int8 | cpu_int4 | none
+target_lang: Hindi
+splits: [harmful, benign]
+template_id: v1
+# thinking_policy is NOT needed — Llama 3.2 is not a reasoning model (defaults to "dense")
+# tag: baseline              # distinguishes variant runs in the output filename
+# limit: 20                  # cap rows (pilots)
+
+# System prompts per language (applied to that language's scoring side)
+# Uncomment below to enable system prompts for Hindi:
+system_prompts:
+  English: "You are a helpful assistant."
+  Hindi: "आप एक सहायक सहायक हैं।"

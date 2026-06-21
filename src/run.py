@@ -6,9 +6,11 @@
 import json
 import subprocess
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 import yaml
+from tqdm import tqdm
 
 from . import compliance, continuations, data, score
 from .schema import SCHEMA_VERSION, validate
@@ -55,6 +57,7 @@ def run(cfg_path):
         base += f"__{cfg['tag']}"
     out = RESULTS / f"{base}.jsonl"
     RESULTS.mkdir(exist_ok=True)
+
     gen_cfg = cfg.get("generate")
     gen_on = bool(gen_cfg)
     gen_max = gen_cfg.get("max_new_tokens", 128) if isinstance(gen_cfg, dict) else 128
@@ -62,12 +65,20 @@ def run(cfg_path):
     gen_f = open(gen_out, "w", encoding="utf-8") if gen_on else None
     n_gen = 0
 
-    n = 0
+    rows = list(data.load(lang, cfg.get("splits", ("harmful", "benign"))))
     limit = cfg.get("limit")
+    if limit:
+        # Cap per split, not globally: rows are grouped by category in the CSV,
+        # so a global head() would keep only harmful and drop the benign control.
+        kept, seen = [], defaultdict(int)
+        for row in rows:
+            if seen[row["split"]] < limit:
+                kept.append(row)
+                seen[row["split"]] += 1
+        rows = kept
+    n = 0
     with open(out, "w", encoding="utf-8") as f:
-        for i, row in enumerate(data.load(lang, cfg.get("splits", ("harmful", "benign")))):
-            if limit and i >= limit:
-                break
+        for i, row in enumerate(tqdm(rows, desc=base, unit="prompt")):
             se = score.score_prompt(tok, model, row["en_text"], en["comply"], en["refuse"],
                                     sys_en, policy)
             st = score.score_prompt(tok, model, row["target_text"], pref["comply"],
@@ -115,6 +126,7 @@ def run(cfg_path):
                 "thinking_policy": policy,
             })
             f.write(json.dumps(rec, ensure_ascii=False) + "\n")
+            f.flush()
             n += 1
 
     manifest = out.with_suffix(".manifest.json")

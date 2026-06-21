@@ -4,3 +4,12 @@ __pycache__/
 .pytest_cache/
 ~/.cache/huggingface
 *.egg-info/
+.env
+env
+
+# Model generations on (harmful) prompts are diagnostics, never results.
+# Keep them out of the repo (README: "holds no harmful generations").
+*.gen.jsonl
+
+# Stray pip-log redirects, e.g. `pip install "x>=0.46.1" >=0.46.1`
+=*
