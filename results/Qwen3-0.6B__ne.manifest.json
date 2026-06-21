@@ -3,7 +3,7 @@
     "model_id": "Qwen/Qwen3-0.6B",
     "model_revision": "main",
     "quant": "nf4",
-    "target_lang": "Bengali",
+    "target_lang": "Nepali",
     "splits": [
       "harmful",
       "benign"
