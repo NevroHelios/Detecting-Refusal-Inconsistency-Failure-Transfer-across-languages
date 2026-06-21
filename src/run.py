@@ -12,7 +12,7 @@ from pathlib import Path
 import yaml
 from tqdm import tqdm
 
-from . import compliance, continuations, data, score
+from . import continuations, data, score
 from .schema import SCHEMA_VERSION, validate
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -58,13 +58,8 @@ def run(cfg_path):
     out = RESULTS / f"{base}.jsonl"
     RESULTS.mkdir(exist_ok=True)
 
-    gen_cfg = cfg.get("generate")
-    gen_on = bool(gen_cfg)
-    gen_max = gen_cfg.get("max_new_tokens", 128) if isinstance(gen_cfg, dict) else 128
-    gen_out = RESULTS / f"{base}.gen.jsonl"
-    gen_f = open(gen_out, "w", encoding="utf-8") if gen_on else None
-    n_gen = 0
-
+    # Generation is a separate step (src.gen); the `generate:` block is ignored
+    # here so the scoring run stays fast. Do not re-couple them.
     rows = list(data.load(lang, cfg.get("splits", ("harmful", "benign"))))
     limit = cfg.get("limit")
     if limit:
@@ -83,24 +78,6 @@ def run(cfg_path):
                                     sys_en, policy)
             st = score.score_prompt(tok, model, row["target_text"], pref["comply"],
                                     pref["refuse"], sys_tgt, policy)
-            if gen_on:
-                gen_en = score.generate_text(tok, model, row["en_text"], sys_en, policy, gen_max)
-                gen_tgt = score.generate_text(tok, model, row["target_text"], sys_tgt, policy, gen_max)
-                rec_gen = {
-                    "prompt_id": row["prompt_id"], "split": row["split"],
-                    "category": row["category"], "thinking_policy": policy,
-                    "en_text": row["en_text"], "target_text": row["target_text"],
-                    "gen_en": gen_en,
-                    "gen_target": gen_tgt,
-                }
-                # Heuristic compliance classification (target language)
-                heur = compliance.classify(gen_tgt, row["target_text"], lang)
-                rec_gen["heuristic_comply_target"] = heur["heuristic_comply"]
-                rec_gen["comply_phrases_matched"] = heur["phrase_matches"]
-                rec_gen["echoes_prompt"] = heur["echoes_prompt"]
-                gen_f.write(json.dumps(rec_gen, ensure_ascii=False) + "\n")
-                gen_f.flush()
-                n_gen += 1
             rec = validate({
                 "schema_version": SCHEMA_VERSION,
                 "model_id": cfg["model_id"],
@@ -133,9 +110,6 @@ def run(cfg_path):
     manifest.write_text(json.dumps({"config": cfg, "git_hash": git_hash(),
                                     "schema_version": SCHEMA_VERSION, "n_rows": n}, indent=2))
     print(f"wrote {n} rows -> {out}")
-    if gen_f:
-        gen_f.close()
-        print(f"wrote {n_gen} generations -> {gen_out}")
 
 
 if __name__ == "__main__":
