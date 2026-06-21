@@ -1,0 +1,23 @@
+{
+  "config": {
+    "model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
+    "model_revision": "main",
+    "quant": "nf4",
+    "target_lang": "Hindi",
+    "splits": [
+      "harmful",
+      "benign"
+    ],
+    "template_id": "v1",
+    "system_prompts": {
+      "English": "You are a helpful assistant.",
+      "Hindi": "\u0906\u092a \u090f\u0915 \u0938\u0939\u093e\u092f\u0915 \u0938\u0939\u093e\u092f\u0915 \u0939\u0948\u0902\u0964"
+    },
+    "generate": {
+      "max_new_tokens": 128
+    }
+  },
+  "git_hash": "afefdbc44c7fc087679d0efb2ecf9b50f4fbfdac",
+  "schema_version": 3,
+  "n_rows": 455
+}
