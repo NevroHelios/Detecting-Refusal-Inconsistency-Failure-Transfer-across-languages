@@ -7,6 +7,7 @@ Qwen3-0.6B,main,nf4,Bengali,False,False,empty_think,270,67,2.3321,2.2511,2.3817,
 Qwen3-1.7B,main,nf4,Bengali,False,False,empty_think,330,125,3.832,3.7521,3.9081,1.0,True,0.0,0.618,0.4218,0.8223,0.0001,3.8621,True,True
 Qwen3-4B,main,nf4,Bengali,False,False,empty_think,330,125,2.0295,1.949,2.1593,1.0,True,0.0,-0.3209,-0.4756,-0.1073,0.001,2.1085,False,True
 Qwen3-4B,main,nf4,Gujarati,False,False,empty_think,330,125,2.5016,2.4112,2.5984,1.0,True,0.0,-0.2976,-0.4492,-0.1669,0.0013,2.5813,False,True
+Qwen3-4B,main,nf4,Kannada,False,False,empty_think,330,125,2.9298,2.8672,2.9916,1.0,True,0.0,-0.2925,-0.4796,-0.125,0.0003,3.0108,True,True
 Qwen3-4B,main,nf4,Malayalam,False,False,empty_think,330,125,3.2107,3.1101,3.2859,1.0,True,0.0,-0.2355,-0.4059,-0.0744,0.0015,3.2746,False,True
 Qwen3-4B,main,nf4,Nepali,False,False,empty_think,330,125,2.0477,1.9532,2.1751,1.0,True,0.0,-0.3869,-0.5593,-0.1918,0.0004,2.1887,False,True
 Qwen3-4B,main,nf4,Punjabi,False,False,empty_think,330,125,1.7854,1.7181,1.867,1.0,True,0.0,-0.0784,-0.255,0.1163,0.37116,1.8733,False,False

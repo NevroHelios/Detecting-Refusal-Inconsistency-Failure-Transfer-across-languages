@@ -3,7 +3,7 @@
     "model_id": "Qwen/Qwen3-4B",
     "model_revision": "main",
     "quant": "nf4",
-    "target_lang": "Bengali",
+    "target_lang": "Kannada",
     "splits": [
       "harmful",
       "benign"
@@ -16,7 +16,7 @@
       "seed": 0
     }
   },
-  "git_hash": "8ade0811fab7f101ce620334bf8281c9c3b38814",
+  "git_hash": "10e7e26b6d8872bc46920db75efda596c3a9b33f",
   "schema_version": 3,
   "n_rows": 455
 }

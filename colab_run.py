@@ -323,6 +323,42 @@ def prefix_logprob(tokenizer, model, prompt, prefix, system_prompt=None, thinkin
 
 
 @torch.no_grad()
+def batch_prefix_logprob(tokenizer, model, prompt, prefixes, system_prompt=None,
+                         thinking_policy="dense"):
+    if thinking_policy not in POLICY_KW:
+        raise ValueError(f"unknown thinking_policy {thinking_policy!r}")
+    msgs = ([{"role": "system", "content": system_prompt}] if system_prompt else []) \
+        + [{"role": "user", "content": prompt}]
+    prompt_ids = tokenizer.apply_chat_template(
+        msgs, add_generation_prompt=True, return_dict=False, **POLICY_KW[thinking_policy])
+    n = len(prompt_ids)
+    seqs, plens = [], []
+    for p in prefixes:
+        pid = tokenizer(p, add_special_tokens=False).input_ids
+        if len(pid) == 0:
+            raise ValueError(f"prefix tokenized to nothing: {p!r}")
+        seqs.append(prompt_ids + pid)
+        plens.append(len(pid))
+    pad_id = tokenizer.pad_token_id
+    if pad_id is None:
+        pad_id = tokenizer.eos_token_id
+    B, L = len(seqs), max(len(s) for s in seqs)
+    ids = torch.full((B, L), pad_id, dtype=torch.long)
+    attn = torch.zeros((B, L), dtype=torch.long)
+    for b, s in enumerate(seqs):
+        ids[b, :len(s)] = torch.tensor(s, dtype=torch.long)
+        attn[b, :len(s)] = 1
+    ids, attn = ids.to(model.device), attn.to(model.device)
+    logp = torch.log_softmax(model(ids, attention_mask=attn).logits.float(), dim=-1)
+    lps = []
+    for b, plen in enumerate(plens):
+        lp = logp[b, n - 1:n - 1 + plen]
+        tgt = ids[b, n:n + plen]
+        lps.append(float(lp[torch.arange(plen, device=tgt.device), tgt].mean()))
+    return lps, n
+
+
+@torch.no_grad()
 def generate_text(tokenizer, model, prompt, system_prompt=None, thinking_policy="dense",
                   max_new_tokens=128):
     msgs = ([{"role": "system", "content": system_prompt}] if system_prompt else []) \
@@ -337,14 +373,14 @@ def generate_text(tokenizer, model, prompt, system_prompt=None, thinking_policy=
 
 def score_prompt(tokenizer, model, prompt, comply_prefixes, refuse_prefixes,
                  system_prompt=None, thinking_policy="dense"):
-    c = [prefix_logprob(tokenizer, model, prompt, p, system_prompt, thinking_policy)
-         for p in comply_prefixes]
-    r = [prefix_logprob(tokenizer, model, prompt, p, system_prompt, thinking_policy)
-         for p in refuse_prefixes]
-    lp_comply = sum(x[0] for x in c) / len(c)
-    lp_refuse = sum(x[0] for x in r) / len(r)
+    nc = len(comply_prefixes)
+    lps, n = batch_prefix_logprob(tokenizer, model, prompt,
+                                  list(comply_prefixes) + list(refuse_prefixes),
+                                  system_prompt, thinking_policy)
+    lp_comply = sum(lps[:nc]) / nc
+    lp_refuse = sum(lps[nc:]) / len(refuse_prefixes)
     return {"s": lp_comply - lp_refuse, "lp_comply": lp_comply,
-            "lp_refuse": lp_refuse, "n_prompt_tokens": c[0][1]}
+            "lp_refuse": lp_refuse, "n_prompt_tokens": n}
 
 
 # ============================================================================
