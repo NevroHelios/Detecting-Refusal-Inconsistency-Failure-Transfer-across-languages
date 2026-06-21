@@ -1,0 +1,20 @@
+{
+  "config": {
+    "model_id": "Qwen/Qwen3-1.7B",
+    "model_revision": "main",
+    "quant": "nf4",
+    "target_lang": "Hindi",
+    "splits": [
+      "harmful",
+      "benign"
+    ],
+    "template_id": "v1",
+    "thinking_policy": "empty_think",
+    "generate": {
+      "max_new_tokens": 128
+    }
+  },
+  "git_hash": "nogit",
+  "schema_version": 3,
+  "n_rows": 455
+}
