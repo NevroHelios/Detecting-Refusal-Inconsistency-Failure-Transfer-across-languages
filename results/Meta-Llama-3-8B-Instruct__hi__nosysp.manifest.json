@@ -1,0 +1,20 @@
+{
+  "config": {
+    "model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
+    "model_revision": "main",
+    "quant": "nf4",
+    "target_lang": "Hindi",
+    "splits": [
+      "harmful",
+      "benign"
+    ],
+    "template_id": "v1",
+    "tag": "nosysp",
+    "generate": {
+      "max_new_tokens": 128
+    }
+  },
+  "git_hash": "5cafa36c663253b51d72befe822077b290f122c7",
+  "schema_version": 3,
+  "n_rows": 455
+}

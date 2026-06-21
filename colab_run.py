@@ -28,12 +28,12 @@ CONFIG = {
     "template_id": "v1",
     # thinking_policy is NOT needed — Llama 3.2 is not a reasoning model
     # "thinking_policy": "empty_think",   # only for Qwen3-style reasoners
-    # "tag": "colab",                     # optional tag for output filename
+    "tag": "nosysp",                     # distinguishes output from the with-sys-prompt run
     # "limit": 20,                        # cap rows for pilot runs
-    "system_prompts": {
-        "English": "You are a helpful assistant.",
-        "Hindi": "आप एक सहायक सहायक हैं।",  # system prompt applied on Hindi scoring side
-    },
+    # "system_prompts": {
+    #     "English": "You are a helpful assistant.",
+    #     "Hindi": "आप एक सहायक सहायक हैं।",  # system prompt applied on Hindi scoring side
+    # },
     "generate": {
         "max_new_tokens": 128,
     },
