@@ -1,4 +1,4 @@
-model_id: mistralai/Ministral-3-8B-Instruct-2512
+model_id: mistralai/Ministral-8B-Instruct-2410
 model_revision: main          # pin to a commit hash before publication runs
 quant: none                   # nf4 | int8 | none (use 'none' for CPU)
 target_lang: Hindi

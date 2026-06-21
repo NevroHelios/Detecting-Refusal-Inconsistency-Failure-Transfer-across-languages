@@ -10,7 +10,7 @@ from pathlib import Path
 
 import yaml
 
-from . import continuations, data, score
+from . import compliance, continuations, data, score
 from .schema import SCHEMA_VERSION, validate
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -73,13 +73,21 @@ def run(cfg_path):
             st = score.score_prompt(tok, model, row["target_text"], pref["comply"],
                                     pref["refuse"], sys_tgt, policy)
             if gen_on:
-                gen_f.write(json.dumps({
+                gen_en = score.generate_text(tok, model, row["en_text"], sys_en, policy, gen_max)
+                gen_tgt = score.generate_text(tok, model, row["target_text"], sys_tgt, policy, gen_max)
+                rec_gen = {
                     "prompt_id": row["prompt_id"], "split": row["split"],
                     "category": row["category"], "thinking_policy": policy,
                     "en_text": row["en_text"], "target_text": row["target_text"],
-                    "gen_en": score.generate_text(tok, model, row["en_text"], sys_en, policy, gen_max),
-                    "gen_target": score.generate_text(tok, model, row["target_text"], sys_tgt, policy, gen_max),
-                }, ensure_ascii=False) + "\n")
+                    "gen_en": gen_en,
+                    "gen_target": gen_tgt,
+                }
+                # Heuristic compliance classification (target language)
+                heur = compliance.classify(gen_tgt, row["target_text"], lang)
+                rec_gen["heuristic_comply_target"] = heur["heuristic_comply"]
+                rec_gen["comply_phrases_matched"] = heur["phrase_matches"]
+                rec_gen["echoes_prompt"] = heur["echoes_prompt"]
+                gen_f.write(json.dumps(rec_gen, ensure_ascii=False) + "\n")
                 gen_f.flush()
                 n_gen += 1
             rec = validate({

@@ -1,6 +1,6 @@
-model_id: Qwen/Qwen3-0.6B
+model_id: Qwen/Qwen2.5-3B
 model_revision: main          # pin to a commit hash before publication runs
-quant: cpu_int8               # nf4 | int8 (GPU) | cpu_int8 | cpu_int4 | none
+quant: cpu_int4               # nf4 | int8 (GPU) | cpu_int8 | cpu_int4 | none
 target_lang: Hindi
 splits: [harmful, benign]
 template_id: v1

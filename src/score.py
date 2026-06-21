@@ -69,7 +69,8 @@ def prefix_logprob(tokenizer, model, prompt, prefix, system_prompt=None, thinkin
         raise ValueError(f"prefix tokenized to nothing: {prefix!r}")
     n = len(prompt_ids)
     ids = torch.tensor([prompt_ids + prefix_ids], device=model.device)
-    logits = model(ids).logits[0]
+    attn = torch.ones_like(ids)
+    logits = model(ids, attention_mask=attn).logits[0]
     logp = torch.log_softmax(logits[n - 1:-1].float(), dim=-1)
     tgt = ids[0, n:]
     return float(logp[torch.arange(len(tgt)), tgt].mean()), int(n)
@@ -84,7 +85,8 @@ def generate_text(tokenizer, model, prompt, system_prompt=None, thinking_policy=
     pids = tokenizer.apply_chat_template(msgs, add_generation_prompt=True,
                                          return_dict=False, **POLICY_KW[thinking_policy])
     ids = torch.tensor([pids], device=model.device)
-    out = model.generate(ids, max_new_tokens=max_new_tokens, do_sample=False)
+    attn = torch.ones_like(ids)
+    out = model.generate(ids, attention_mask=attn, max_new_tokens=max_new_tokens, do_sample=False)
     return tokenizer.decode(out[0, len(pids):], skip_special_tokens=True)
 
 
