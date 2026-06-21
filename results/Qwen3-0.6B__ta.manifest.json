@@ -3,7 +3,7 @@
     "model_id": "Qwen/Qwen3-0.6B",
     "model_revision": "main",
     "quant": "nf4",
-    "target_lang": "Marathi",
+    "target_lang": "Tamil",
     "splits": [
       "harmful",
       "benign"
@@ -16,7 +16,7 @@
       "seed": 0
     }
   },
-  "git_hash": "f437d45a88a50657c9ce276b2314b79b1ebcd72b",
+  "git_hash": "b3f6bb0ff5546670c8489f93d782f4a32674f1c3",
   "schema_version": 3,
   "n_rows": 455
 }
