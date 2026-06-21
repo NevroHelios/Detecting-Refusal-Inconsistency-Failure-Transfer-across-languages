@@ -11,7 +11,9 @@ from pathlib import Path
 import yaml
 from tqdm import tqdm
 
-from . import continuations, data, score
+from . import continuations
+
+from . import data, score
 from .schema import SCHEMA_VERSION, validate
 
 ROOT = Path(__file__).resolve().parent.parent
