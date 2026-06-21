@@ -13,3 +13,6 @@ env
 
 # Stray pip-log redirects, e.g. `pip install "x>=0.46.1" >=0.46.1`
 =*
+
+# Bundle/transfer archives (e.g. the H100 run zips) — not source
+*.zip

@@ -1,0 +1,17 @@
+{
+  "config": {
+    "model_id": "google/gemma-3-12b-it",
+    "model_revision": "main",
+    "quant": "none",
+    "target_lang": "Hindi",
+    "splits": [
+      "harmful",
+      "benign"
+    ],
+    "template_id": "v1",
+    "tag": "nosysp"
+  },
+  "git_hash": "dd991b426ebb712ab9082f1d5ba1226cdc7535d2",
+  "schema_version": 3,
+  "n_rows": 455
+}

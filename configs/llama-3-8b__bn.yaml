@@ -1,0 +1,9 @@
+model_id: meta-llama/Meta-Llama-3-8B-Instruct   # gated on HF: accept license + token
+model_revision: main          # pin to a commit hash before publication runs
+quant: nf4                    # matches the existing Llama-3-8B Hindi run
+target_lang: Bengali
+splits: [harmful, benign]
+template_id: v1
+# Llama 3 is not a reasoning model -> dense (default). No system prompt here, to
+# match the existing Meta-Llama-3-8B-Instruct__hi__nosysp baseline.
+# tag: nosysp

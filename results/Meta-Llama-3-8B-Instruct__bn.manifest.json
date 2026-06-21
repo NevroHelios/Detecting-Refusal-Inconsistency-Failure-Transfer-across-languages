@@ -1,0 +1,16 @@
+{
+  "config": {
+    "model_id": "meta-llama/Meta-Llama-3-8B-Instruct",
+    "model_revision": "main",
+    "quant": "nf4",
+    "target_lang": "Bengali",
+    "splits": [
+      "harmful",
+      "benign"
+    ],
+    "template_id": "v1"
+  },
+  "git_hash": "dd991b426ebb712ab9082f1d5ba1226cdc7535d2",
+  "schema_version": 3,
+  "n_rows": 455
+}
