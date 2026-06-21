@@ -23,42 +23,23 @@ def wasserstein(s_en, s_target):
     return float(stats.wasserstein_distance(s_en, s_target))
 
 
-def _boot_medians(deltas, clusters, n, rng):
-    """n bootstrap medians of `deltas`. Clustered: resample whole clusters."""
-    d = np.asarray(deltas, float)
-    if clusters is None:
-        idx = rng.integers(0, len(d), size=(n, len(d)))
-        return np.median(d[idx], axis=1)
-    clusters = np.asarray(clusters)
-    groups = [d[clusters == c] for c in np.unique(clusters)]
-    k = len(groups)
-    meds = np.empty(n)
-    for i in range(n):
-        pick = rng.integers(0, k, size=k)
-        meds[i] = np.median(np.concatenate([groups[j] for j in pick]))
-    return meds
-
-
 def bootstrap_ci(deltas, clusters=None, n=10000, seed=0):
     """95% percentile CI on the median. Clustered: resample clusters with
     replacement (preserves within-cluster correlation)."""
-    meds = _boot_medians(deltas, clusters, n, np.random.default_rng(seed))
-    return float(np.percentile(meds, 2.5)), float(np.percentile(meds, 97.5))
-
-
-def safety_drift_ci(harmful, benign, harmful_clusters=None, benign_clusters=None,
-                    n=10000, seed=0):
-    """Point estimate, 95% CI, and two-sided bootstrap p for
-    safety_drift = median(harmful) - median(benign). Resamples the two groups
-    independently (clustered), so the CI reflects uncertainty in both medians.
-    Returns (point, lo, hi, p)."""
     rng = np.random.default_rng(seed)
-    diff = _boot_medians(harmful, harmful_clusters, n, rng) \
-        - _boot_medians(benign, benign_clusters, n, rng)
-    point = float(np.median(harmful) - np.median(benign))
-    lo, hi = float(np.percentile(diff, 2.5)), float(np.percentile(diff, 97.5))
-    p = float(min(1.0, 2 * min(np.mean(diff <= 0), np.mean(diff >= 0))))
-    return point, lo, hi, p
+    d = np.asarray(deltas, float)
+    if clusters is None:
+        idx = rng.integers(0, len(d), size=(n, len(d)))
+        meds = np.median(d[idx], axis=1)
+    else:
+        clusters = np.asarray(clusters)
+        groups = [d[clusters == c] for c in np.unique(clusters)]
+        k = len(groups)
+        meds = np.empty(n)
+        for i in range(n):
+            pick = rng.integers(0, k, size=k)
+            meds[i] = np.median(np.concatenate([groups[j] for j in pick]))
+    return float(np.percentile(meds, 2.5)), float(np.percentile(meds, 97.5))
 
 
 def bh(pvalues, alpha=0.05):
@@ -76,3 +57,45 @@ def bh(pvalues, alpha=0.05):
 
 def safety_drift(harmful_median, benign_median):
     return harmful_median - benign_median
+
+
+def diff_median(a, b):
+    """median(a) - median(b). This is the safety_drift point estimate when a=harmful
+    deltas and b=benign deltas."""
+    return float(np.median(np.asarray(a, float)) - np.median(np.asarray(b, float)))
+
+
+def safety_drift_ci(harmful, benign, n=10000, seed=0):
+    """95% percentile CI on safety_drift = median(harmful Δ) - median(benign Δ).
+
+    Resamples prompts *within each split* independently (the prompts are the
+    exchangeable unit; harmful and benign are disjoint prompt sets), so the CI is
+    on the difference of medians, not on the harmful median alone."""
+    rng = np.random.default_rng(seed)
+    h = np.asarray(harmful, float)
+    b = np.asarray(benign, float)
+    ih = rng.integers(0, len(h), size=(n, len(h)))
+    ib = rng.integers(0, len(b), size=(n, len(b)))
+    diffs = np.median(h[ih], axis=1) - np.median(b[ib], axis=1)
+    return float(np.percentile(diffs, 2.5)), float(np.percentile(diffs, 97.5))
+
+
+def safety_drift_p(harmful, benign, n=10000, seed=0):
+    """Two-sided permutation p-value for safety_drift = 0.
+
+    H0: harmful and benign deltas are exchangeable (no safety-specific drift; any
+    shift is generic cross-lingual movement shared by both splits). Shuffles the
+    split labels, recomputes |Δmedian|, and asks how often it matches/exceeds the
+    observed gap. Add-one correction keeps p in (0, 1]."""
+    rng = np.random.default_rng(seed)
+    h = np.asarray(harmful, float)
+    b = np.asarray(benign, float)
+    pooled = np.concatenate([h, b])
+    nh = len(h)
+    obs = abs(np.median(h) - np.median(b))
+    count = 0
+    for _ in range(n):
+        perm = rng.permutation(pooled)
+        if abs(np.median(perm[:nh]) - np.median(perm[nh:])) >= obs - 1e-12:
+            count += 1
+    return float((count + 1) / (n + 1))

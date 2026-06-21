@@ -6,6 +6,7 @@
 import json
 import subprocess
 import sys
+from collections import defaultdict
 from pathlib import Path
 
 import yaml
@@ -62,7 +63,14 @@ def run(cfg_path):
     rows = list(data.load(lang, cfg.get("splits", ("harmful", "benign"))))
     limit = cfg.get("limit")
     if limit:
-        rows = rows[:limit]
+        # Cap per split, not globally: rows are grouped by category in the CSV,
+        # so a global head() would keep only harmful and drop the benign control.
+        kept, seen = [], defaultdict(int)
+        for row in rows:
+            if seen[row["split"]] < limit:
+                kept.append(row)
+                seen[row["split"]] += 1
+        rows = kept
     n = 0
     with open(out, "w", encoding="utf-8") as f:
         for i, row in enumerate(tqdm(rows, desc=base, unit="prompt")):

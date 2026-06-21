@@ -50,19 +50,31 @@ the ISO-639-1 codes used in filenames.
 - token-length inflation (Indic scripts) -> per-token mean logprob
 - EN-vs-target length gap -> `s` is within-language; `delta` is diff-in-diff
 - phrasing dependence -> average 2-4 prefixes per side
-- prompt clustering -> clustered bootstrap (cluster key = category for now)
-- many languages -> Benjamini-Hochberg
-- capability vs safety -> benign control split; report
-  `safety_drift = harmful_median_delta - benign_median_delta`. A small model can
-  produce a large drift simply because it cannot read the target language; use
-  `src.gen` to confirm the model generates coherent target-language output before
-  trusting the number.
+- resampling unit -> bootstrap over prompts by default; `--cluster` clusters by
+  harm category as a sensitivity check (few categories -> coarse CI)
+- many languages -> Benjamini-Hochberg, across languages within one
+  model/condition family (not across the whole table)
+- capability vs safety -> benign control split. The headline estimand is
+  `safety_drift = median(harmful delta) - median(benign delta)`, **tested
+  directly**: a difference-of-medians bootstrap CI and a label-permutation
+  p-value, both resampling prompts within each split. (The harmful-only Wilcoxon
+  is reported too, but only as a secondary "did target shift vs EN at all".) A
+  small model can produce a large drift simply because it cannot read the target
+  language; use `src.gen` to confirm the model generates coherent target-language
+  output before trusting the number.
 - machine-translation quality -> sits inside `delta`; the benign-vs-harmful
   diff-in-diff isolates safety-specific drift from generic MT degradation
+- saturation artifact -> rows with `frac_pos` pinned at ~0/1 are flagged
+  `saturated`; trust `safety_drift`, not `median_delta`, for those
 
-## Stats (per model x language x system-prompt x policy), in `metrics.py`
-Wilcoxon signed-rank p; signed median delta; clustered bootstrap 95% CI on the
-median; fraction delta>0; 1D Wasserstein (figure only); BH across rows.
+## Stats (per model x language x condition), in `metrics.py`
+Headline: `safety_drift` with a difference-of-medians bootstrap 95% CI
+(`safety_drift_ci`) and a two-sided permutation p (`safety_drift_p`), BH-corrected
+across languages within each model/condition family. Secondary/descriptive:
+signed harmful median delta + its bootstrap CI, fraction delta>0, harmful Wilcoxon
+p, 1D Wasserstein (figure only). Pooling key includes quant + model_revision +
+system-prompt flags so incomparable runs are never merged into one cell. Pass
+`--verified-only` for a publication table (drops `prefixes_verified=False` pilots).
 
 ## Setup (uv)
     uv sync                 # stats + data path
