@@ -1,6 +1,6 @@
 {
   "config": {
-    "model_id": "Qwen/Qwen3-4B",
+    "model_id": "Qwen/Qwen3-0.6B",
     "model_revision": "main",
     "quant": "nf4",
     "target_lang": "Punjabi",
