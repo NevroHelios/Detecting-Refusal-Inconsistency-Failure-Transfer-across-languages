@@ -1,4 +1,6 @@
 model,lang,sysprompt,thinking,n_harmful,n_benign,median_delta,ci_lo,ci_hi,frac_pos,wilcoxon_p,wasserstein,safety_drift,sd_lo,sd_hi,sd_p,sd_sig,verified,bh_significant
+Meta-Llama-3-8B-Instruct,Hindi,False,dense,330,125,1.1895,0.9799,1.3663,1.0,0.0,1.2059,0.15,False,True
+Meta-Llama-3-8B-Instruct,Hindi,True,dense,330,125,1.3119,1.0051,1.6258,1.0,0.0,1.3493,-0.571,False,True
 Qwen3-0.6B,Bengali,False,empty_think,270,67,2.3321,2.2126,2.466,1.0,0.0,2.2861,1.0019,0.7503,1.1415,0.0,True,False,True
 Qwen3-0.6B,Hindi,False,empty_think,330,125,3.0144,2.9506,3.069,1.0,0.0,2.957,0.7802,0.6634,0.9116,0.0,True,False,True
 Qwen3-0.6B,Hindi,True,empty_think,330,125,2.8057,2.74,2.8577,1.0,0.0,2.7576,0.7686,0.7042,0.8255,0.0,True,False,True
