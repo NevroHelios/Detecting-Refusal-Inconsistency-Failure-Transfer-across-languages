@@ -1,0 +1,11 @@
+# Pinned-ish deps for a CUDA GPU box (H100). Mirrors pyproject + the gpu extra,
+# plus tqdm (imported by src/run.py but missing from pyproject deps).
+numpy
+scipy
+pandas
+pyyaml
+tqdm
+torch
+transformers>=4.50          # Gemma 3 chat template needs a recent transformers
+accelerate
+bitsandbytes                # required for quant: nf4 / int8
