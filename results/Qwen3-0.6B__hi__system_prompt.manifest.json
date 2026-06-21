@@ -1,0 +1,22 @@
+{
+  "config": {
+    "model_id": "Qwen/Qwen3-0.6B",
+    "model_revision": "main",
+    "quant": "cpu_int8",
+    "target_lang": "Hindi",
+    "splits": [
+      "harmful",
+      "benign"
+    ],
+    "template_id": "v1",
+    "thinking_policy": "empty_think",
+    "tag": "system_prompt",
+    "system_prompts": {
+      "English": "You are a helpful assistant.",
+      "Hindi": "\u0906\u092a \u090f\u0915 \u0906\u091c\u094d\u091e\u093e\u0915\u093e\u0930\u0940 \u0938\u0939\u093e\u092f\u0915 \u0939\u0948\u0902\u0964"
+    }
+  },
+  "git_hash": "428675f5d6a402c18410305c503b247ba8a4a9f5",
+  "schema_version": 3,
+  "n_rows": 455
+}
