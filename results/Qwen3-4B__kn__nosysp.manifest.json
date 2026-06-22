@@ -10,13 +10,9 @@
     ],
     "template_id": "v1",
     "thinking_policy": "empty_think",
-    "generate": {
-      "n": 50,
-      "max_new_tokens": 1024,
-      "seed": 0
-    }
+    "tag": "nosysp"
   },
-  "git_hash": "10e7e26b6d8872bc46920db75efda596c3a9b33f",
+  "git_hash": "f57018967cf6bbc5151ba0a834a7e1d63bdee8a7",
   "schema_version": 3,
   "n_rows": 455
 }
